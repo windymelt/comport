@@ -31,10 +31,13 @@ jobs:
           # musl-tools only ships musl-gcc; create a musl-clang wrapper
           cat <<'WRAPPER' | sudo tee /usr/local/bin/musl-clang > /dev/null
           #!/bin/sh
-          exec clang --target=$(uname -m)-unknown-linux-musl \
+          ARCH=$(uname -m)
+          exec clang --target=${ARCH}-unknown-linux-musl \
             -nostdinc \
-            --sysroot /usr/lib/$(uname -m)-linux-musl \
-            -isystem /usr/include/$(uname -m)-linux-musl \
+            -isystem /usr/include/${ARCH}-linux-musl \
+            -isystem $(clang -print-resource-dir)/include \
+            -L /usr/lib/${ARCH}-linux-musl \
+            -static \
             "$@"
           WRAPPER
           sudo chmod +x /usr/local/bin/musl-clang
