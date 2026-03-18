@@ -27,7 +27,17 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y musl-tools clang
+          sudo apt-get install -y musl-tools musl-dev clang
+          # musl-tools only ships musl-gcc; create a musl-clang wrapper
+          cat <<'WRAPPER' | sudo tee /usr/local/bin/musl-clang > /dev/null
+          #!/bin/sh
+          exec clang --target=$(uname -m)-unknown-linux-musl \
+            -nostdinc \
+            --sysroot /usr/lib/$(uname -m)-linux-musl \
+            -isystem /usr/include/$(uname -m)-linux-musl \
+            "$@"
+          WRAPPER
+          sudo chmod +x /usr/local/bin/musl-clang
 
       - name: Extract version from tag
         id: version
@@ -40,7 +50,7 @@ jobs:
             --native-mode release-fast \
             --native-lto thin \
             --native-gc commix \
-            --native-clang /usr/bin/musl-clang
+            --native-clang /usr/local/bin/musl-clang
 
       - name: Build native binary (macOS)
         if: runner.os == 'macOS'

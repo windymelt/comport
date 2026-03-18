@@ -13,3 +13,60 @@ jobs:
       - uses: actions/checkout@v4
       - uses: VirtusLab/scala-cli-setup@v1
       - run: scala-cli compile .
+
+  build:
+    if: github.event_name == 'push'
+    needs: compile
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-linux
+          - os: ubuntu-24.04-arm
+            target: aarch64-linux
+          - os: macos-26-intel
+            target: x86_64-macos
+          - os: macos-latest
+            target: aarch64-macos
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VirtusLab/scala-cli-setup@v1
+
+      - name: Install musl and clang (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools musl-dev clang
+          cat <<'WRAPPER' | sudo tee /usr/local/bin/musl-clang > /dev/null
+          #!/bin/sh
+          exec clang --target=$(uname -m)-unknown-linux-musl \
+            -nostdinc \
+            --sysroot /usr/lib/$(uname -m)-linux-musl \
+            -isystem /usr/include/$(uname -m)-linux-musl \
+            "$@"
+          WRAPPER
+          sudo chmod +x /usr/local/bin/musl-clang
+
+      - name: Build native binary (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          scala-cli --power package . -o comport -f \
+            --native-mode release-fast \
+            --native-lto thin \
+            --native-gc commix \
+            --native-clang /usr/local/bin/musl-clang
+
+      - name: Build native binary (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          scala-cli --power package . -o comport -f \
+            --native-mode release-fast \
+            --native-lto full \
+            --native-gc commix
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: comport-${{ matrix.target }}
+          path: comport
