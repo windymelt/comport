@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-linux
+          - os: ubuntu-24.04-arm
+            target: aarch64-linux
+          - os: macos-13
+            target: x86_64-macos
+          - os: macos-latest
+            target: aarch64-macos
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: VirtusLab/scala-cli-setup@v1
+
+      - name: Install musl and clang (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools clang
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build native binary
+        run: |
+          scala-cli --power package . -o comport -f \
+            --native-mode releaseFast \
+            --native-lto thin \
+            --native-gc commix
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: comport-${{ steps.version.outputs.version }}-${{ matrix.target }}
+          path: comport
