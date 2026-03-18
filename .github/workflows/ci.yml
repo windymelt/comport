@@ -34,7 +34,7 @@ jobs:
             apk add --no-cache bash curl clang lld musl-dev openjdk17-jre-headless &&
             curl -fLo /usr/local/bin/coursier https://github.com/coursier/launchers/raw/master/coursier &&
             chmod +x /usr/local/bin/coursier &&
-            eval "$(coursier setup --yes --apps scala-cli)" &&
+            coursier install --install-dir /usr/local/bin scala-cli &&
             scala-cli --power package . -o comport -f \
               --native-mode release-fast \
               --native-lto thin \
