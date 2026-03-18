@@ -58,7 +58,9 @@ jobs:
             --native-mode release-fast \
             --native-lto thin \
             --native-gc commix \
-            --native-clang /usr/local/bin/musl-clang
+            --native-clang /usr/local/bin/musl-clang \
+            --native-linking "-static" \
+            --native-linking "-L/usr/lib/$(uname -m)-linux-musl"
 
       - name: Build native binary (macOS)
         if: runner.os == 'macOS'
