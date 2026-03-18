@@ -74,7 +74,7 @@ def allocate(
 
 object Comport {
   @main
-  def run(
+  def comport(
       @arg(doc = "Number of services (used when --names is not specified and no compose file is found)")
       numServices: Int = 1,
       @arg(doc = "Service names (comma-separated). Overrides compose file auto-detection when specified")
