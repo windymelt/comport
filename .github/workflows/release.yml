@@ -54,3 +54,34 @@ jobs:
         with:
           name: comport-${{ steps.version.outputs.version }}-${{ matrix.target }}
           path: comport
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare release assets
+        run: |
+          mkdir release
+          for dir in artifacts/comport-*; do
+            name=$(basename "$dir")
+            chmod +x "$dir/comport"
+            mv "$dir/comport" "release/$name"
+          done
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: v${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          files: release/*
