@@ -37,7 +37,7 @@ jobs:
             coursier launch scala-cli -- --power package . -o comport -f \
               --native-mode release-fast \
               --native-lto thin \
-              --native-gc immix \
+              --native-gc commix \
               --native-linking "-static"
           '
 
@@ -67,7 +67,7 @@ jobs:
           scala-cli --power package . -o comport -f \
             --native-mode release-fast \
             --native-lto full \
-            --native-gc immix
+            --native-gc commix
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

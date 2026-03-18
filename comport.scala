@@ -7,6 +7,18 @@
 
 import mainargs.{main, arg, Flag, ParserForMethods}
 import org.virtuslab.yaml.*
+import scala.scalanative.unsafe._
+
+// POSIX _exit(2): terminates the process immediately without running
+// atexit handlers or GC finalization.  This avoids a race condition
+// between the GC cleanup on the main thread and os-lib's
+// GenericProcessWatcher daemon thread, which causes intermittent
+// segfaults on musl-linked static binaries.
+@extern
+private object PosixExit {
+  @name("_exit")
+  def posixExit(status: CInt): Unit = extern
+}
 
 // ---- Parse compose.yaml ----
 
@@ -139,6 +151,9 @@ object Comport {
     )
   }
 
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     ParserForMethods(this).runOrExit(args.toSeq)
+    // Skip GC finalization to avoid segfault on musl (see PosixExit above)
+    PosixExit.posixExit(0)
+  }
 }
