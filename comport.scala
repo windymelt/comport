@@ -1,6 +1,7 @@
 //> using platform native
-//> using scala 3.3
-//> using options -no-indent -rewrite
+//> using scala 3.3.8
+//> using nativeVersion "0.5.12"
+//> using options -Yfuture-lazy-vals -java-output-version:11 -no-indent -rewrite
 //> using dep com.lihaoyi::mainargs::0.7.8
 //> using dep com.lihaoyi::os-lib::0.11.8
 //> using dep org.virtuslab::scala-yaml::0.3.1
