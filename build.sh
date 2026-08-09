@@ -1,4 +1,4 @@
-#!/bin/env sh
+#!/bin/sh
 
 # Build script using scala-cli. Overwrites `./comport` if exists.
 
