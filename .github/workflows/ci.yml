@@ -15,7 +15,7 @@ jobs:
       - run: scala-cli compile .
 
   build-linux:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     needs: compile
     strategy:
       matrix:
@@ -48,7 +48,7 @@ jobs:
           path: comport
 
   build-macos:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     needs: compile
     strategy:
       matrix:
