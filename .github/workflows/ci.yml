@@ -15,7 +15,7 @@ jobs:
       - run: scala-cli compile .
 
   build-linux:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     needs: compile
     strategy:
       matrix:
@@ -30,16 +30,7 @@ jobs:
 
       - name: Build in Alpine container
         run: |
-          docker run --rm -v "$PWD":/work -w /work alpine:latest sh -c '
-            apk add --no-cache bash curl clang lld musl-dev openjdk17-jre-headless &&
-            curl -fLo /usr/local/bin/coursier https://github.com/coursier/launchers/raw/master/coursier.jar &&
-            chmod +x /usr/local/bin/coursier &&
-            coursier launch scala-cli -- --power package . -o comport -f \
-              --native-mode release-fast \
-              --native-lto thin \
-              --native-gc commix \
-              --native-linking "-static"
-          '
+          ./build-with-container.sh
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -48,7 +39,7 @@ jobs:
           path: comport
 
   build-macos:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     needs: compile
     strategy:
       matrix:
@@ -64,10 +55,7 @@ jobs:
 
       - name: Build native binary
         run: |
-          scala-cli --power package . -o comport -f \
-            --native-mode release-fast \
-            --native-lto full \
-            --native-gc commix
+          ./build.sh
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

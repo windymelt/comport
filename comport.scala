@@ -1,5 +1,5 @@
 //> using platform native
-//> using scala 3.3
+//> using scala 3.8.2
 //> using options -no-indent -rewrite
 //> using dep com.lihaoyi::mainargs::0.7.8
 //> using dep com.lihaoyi::os-lib::0.11.8
