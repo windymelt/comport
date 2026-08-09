@@ -51,8 +51,10 @@ def detectServices(root: os.Path): Either[String, List[String]] = {
 
 def fnv1a64(s: String): Long = {
   var hash = 0xcbf29ce484222325L
-  for c <- s do hash ^= c.toLong
-  hash *= 0x100000001b3L
+  for c <- s do {
+    hash ^= c.toLong
+    hash *= 0x100000001b3L
+  }
   hash
 }
 
