@@ -1,25 +1,24 @@
 import scala.scalanative.build.*
 
-ThisBuild / scalaVersion := "3.8.2"
-ThisBuild / organization := "dev.capslock"
+enablePlugins(ScalaNativePlugin)
 
-lazy val comport = (project in file("."))
-  .enablePlugins(ScalaNativePlugin)
-  .settings(
-    name := "comport",
-    scalacOptions += "-no-indent",
-    libraryDependencies ++= Seq(
-      "com.lihaoyi"    %% "mainargs"   % "0.7.8",
-      "com.lihaoyi"    %% "os-lib"     % "0.11.8",
-      "org.virtuslab"  %% "scala-yaml" % "0.3.3"
-    ),
-    nativeConfig ~= { cfg =>
-      val extraLinkOpts =
-        sys.env.getOrElse("LINKFLAGS", "").split("\\s+").filter(_.nonEmpty).toSeq
-      cfg
-        .withMode(Mode.releaseFast)
-        .withLTO(LTO.full)
-        .withGC(GC.commix)
-        .withLinkingOptions(cfg.linkingOptions ++ extraLinkOpts)
-    }
-  )
+name         := "comport"
+organization := "dev.capslock"
+scalaVersion := "3.8.2"
+scalacOptions += "-no-indent"
+
+libraryDependencies ++= Seq(
+  "com.lihaoyi"   %% "mainargs"   % "0.7.8",
+  "com.lihaoyi"   %% "os-lib"     % "0.11.8",
+  "org.virtuslab" %% "scala-yaml" % "0.3.3"
+)
+
+nativeConfig ~= { cfg =>
+  val extraLinkOpts =
+    sys.env.getOrElse("LINKFLAGS", "").split("\\s+").filter(_.nonEmpty).toSeq
+  cfg
+    .withMode(Mode.releaseFast)
+    .withLTO(LTO.full)
+    .withGC(GC.commix)
+    .withLinkingOptions(cfg.linkingOptions ++ extraLinkOpts)
+}
