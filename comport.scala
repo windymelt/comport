@@ -3,7 +3,7 @@
 //> using options -no-indent -rewrite
 //> using dep com.lihaoyi::mainargs::0.7.8
 //> using dep com.lihaoyi::os-lib::0.11.8
-//> using dep org.virtuslab::scala-yaml::0.3.1
+//> using dep org.virtuslab::scala-yaml::0.3.3
 
 import mainargs.{main, arg, Flag, ParserForMethods}
 import org.virtuslab.yaml.*
