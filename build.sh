@@ -1,16 +1,18 @@
 #!/bin/sh
 
-# Build script using scala-cli. Overwrites `./comport` if exists.
+# Build script using sbt. Overwrites `./comport` if exists.
+# LINKFLAGS (whitespace-separated) is picked up by build.sbt and appended
+# to nativeConfig.linkingOptions (used e.g. for `-static` in the Alpine
+# container build).
 
 set -eux
 set pipefail
 
 LINKFLAGS=${LINKFLAGS:-}
-COURSIER=${COURSIER:-cs}
-SCALA_CLI_LAUNCH=${SCALA_CLI_LAUNCH:-scala-cli}
+SBT_LAUNCH=${SBT_LAUNCH:-sbt}
 
-${SCALA_CLI_LAUNCH} --power package . -o comport -f \
-          --native-mode release-fast \
-          --native-lto full \
-          --native-gc commix \
-          --native-linking "${LINKFLAGS}"
+export LINKFLAGS
+
+${SBT_LAUNCH} -Dsbt.color=never nativeLink
+
+cp target/scala-3.8.2/comport-out ./comport
