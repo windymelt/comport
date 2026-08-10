@@ -15,4 +15,4 @@ export LINKFLAGS
 
 ${SBT_LAUNCH} -Dsbt.color=never nativeLink
 
-cp target/scala-3.8.2/comport-out ./comport
+cp target/out/native0.5/scala-3.8.2/comport/comport ./comport
