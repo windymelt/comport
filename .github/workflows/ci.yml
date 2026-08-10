@@ -11,8 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: VirtusLab/scala-cli-setup@v1
-      - run: scala-cli compile .
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: sbt/setup-sbt@v1
+      - run: sbt compile
 
   build-linux:
     if: github.event_name == 'push' || github.event_name == 'pull_request'
@@ -51,7 +55,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: VirtusLab/scala-cli-setup@v1
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: sbt/setup-sbt@v1
 
       - name: Build native binary
         run: |
