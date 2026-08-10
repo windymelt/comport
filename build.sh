@@ -13,6 +13,8 @@ SBT_LAUNCH=${SBT_LAUNCH:-sbt}
 
 export LINKFLAGS
 
-${SBT_LAUNCH} -Dsbt.color=never nativeLink
+# --server forces the JVM launcher and skips sbtn (the thin native client).
+# sbt 2's sbtn is glibc-linked and does not run on Alpine/musl.
+${SBT_LAUNCH} --server -Dsbt.color=never nativeLink
 
 cp target/out/native0.5/scala-3.8.2/comport/comport ./comport
