@@ -32,14 +32,15 @@ sudo mv comport /usr/local/bin/
 
 ### Build from source
 
-Requires [Scala CLI](https://scala-cli.virtuslab.org/).
+Requires [sbt](https://www.scala-sbt.org/) (2.x), JDK 17+, and Clang/LLVM
+for Scala Native linking.
 
 ```sh
 # Run directly
-scala-cli run .
+sbt run
 
-# Build native binary
-scala-cli --power package . -o comport --native-mode release-fast --native-gc commix
+# Build native binary (produces ./comport)
+./build.sh
 ```
 
 ## Usage
