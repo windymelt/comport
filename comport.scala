@@ -5,9 +5,13 @@
 //> using dep com.lihaoyi::os-lib::0.11.8
 //> using dep org.virtuslab::scala-yaml::0.3.3
 
-import mainargs.{main, arg, Flag, ParserForMethods}
+import mainargs.Flag
+import mainargs.ParserForMethods
+import mainargs.arg
+import mainargs.main
 import org.virtuslab.yaml.*
-import scala.scalanative.unsafe._
+
+import scala.scalanative.unsafe.*
 
 // POSIX _exit(2): terminates the process immediately without running
 // atexit handlers or GC finalization.  This avoids a race condition
@@ -25,14 +29,18 @@ private object PosixExit {
 // We only need the top-level keys under services:, so Map[String, Any] suffices
 case class ComposeFile(services: Map[String, Any]) derives YamlDecoder
 
-/** Look for compose.yaml / docker-compose.yaml in the worktree root and return service names */
-def detectServices(root: os.Path): Either[String, List[String]] = {
-  val candidates = List(
-    "compose.yaml",
-    "compose.yml",
-    "docker-compose.yaml",
-    "docker-compose.yml"
-  )
+/** Look for compose.yaml / docker-compose.yaml in the worktree root and return
+  * service names
+  */
+def detectServices(
+    root: os.Path,
+    candidates: Set[String] = Set(
+      "compose.yaml",
+      "compose.yml",
+      "docker-compose.yaml",
+      "docker-compose.yml"
+    )
+): Either[String, List[String]] = {
   candidates
     .map(root / _)
     .find(os.exists)
@@ -89,9 +97,13 @@ def allocate(
 object Comport {
   @main
   def comport(
-      @arg(doc = "Number of services (used when --names is not specified and no compose file is found)")
+      @arg(doc =
+        "Number of services (used when --names is not specified and no compose file is found)"
+      )
       numServices: Int = 1,
-      @arg(doc = "Service names (comma-separated). Overrides compose file auto-detection when specified")
+      @arg(doc =
+        "Service names (comma-separated). Overrides compose file auto-detection when specified"
+      )
       names: String = "",
       @arg(doc = "Environment variable prefix")
       prefix: String = "PORT",
@@ -102,7 +114,9 @@ object Comport {
       @arg(doc = "Show allocation info on stderr")
       show: Flag = Flag(),
       @arg(doc = "Output in .env format without export")
-      dotenv: Flag = Flag()
+      dotenv: Flag = Flag(),
+      @arg(doc = "Root of project (default: worktree root)")
+      projectRoot: Option[String]
   ): Unit = {
     val worktreePath =
       try os.proc("git", "rev-parse", "--show-toplevel").call().out.trim()
@@ -115,11 +129,20 @@ object Comport {
 
     // Resolve service names: --names > compose auto-detection > numServices
     val resolvedNames: List[String] =
-      if names.nonEmpty then
-      // Explicit specification takes highest priority
-      names.split(",").toList.map(_.trim).filter(_.nonEmpty)
-      else
-        detectServices(os.Path(worktreePath)) match {
+      if (names.nonEmpty) {
+        // Explicit specification takes highest priority
+        names.split(",").toList.map(_.trim).filter(_.nonEmpty)
+      } else {
+        val absoluteProjectRoot = projectRoot.map { pr =>
+          if (pr.startsWith("/")) {
+            os.Path(pr)
+          } else {
+            os.pwd / os.RelPath(pr)
+          }
+        }
+        detectServices(
+          absoluteProjectRoot.getOrElse(os.Path(worktreePath))
+        ) match {
           case Right(detected) => {
             if show.value then System.err.println(
               s"[info] detected services from compose file: ${detected.mkString(", ")}"
@@ -133,6 +156,7 @@ object Comport {
             (0 until numServices).map(_.toString).toList
           }
         }
+      }
 
     val alloc = allocate(worktreePath, resolvedNames, base, range)
 
@@ -143,13 +167,14 @@ object Comport {
     }
     if show.value then System.err.println(
       s"""|--- worktree-ports ---
-            |worktree  : ${alloc.worktreePath}
-            |hash      : ${fnv1a64(alloc.worktreePath)}
-            |slot      : ${alloc.slot} / ${alloc.slotCount}
-            |base port : ${alloc.basePort}
-            |services  : ${resolvedNames.length}
-            |range     : ${alloc.basePort} - ${alloc.basePort + resolvedNames.length - 1}
-            |----------------------""".stripMargin
+          |worktree     : ${alloc.worktreePath}
+          |project root : ${projectRoot.getOrElse("(automatic)")}
+          |hash         : ${fnv1a64(alloc.worktreePath)}
+          |slot         : ${alloc.slot} / ${alloc.slotCount}
+          |base port    : ${alloc.basePort}
+          |services     : ${resolvedNames.length}
+          |range        : ${alloc.basePort} - ${alloc.basePort + resolvedNames.length - 1}
+          |----------------------""".stripMargin
     )
   }
 
