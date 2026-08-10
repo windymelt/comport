@@ -2,10 +2,13 @@ import scala.scalanative.build.*
 
 enablePlugins(ScalaNativePlugin)
 
+ThisBuild / semanticdbEnabled := true
+ThisBuild / scalafmtOnCompile := true
+
 name         := "comport"
 organization := "dev.capslock"
 scalaVersion := "3.8.2"
-scalacOptions += "-no-indent"
+scalacOptions ++= Seq("-no-indent", "-Wunused:all")
 
 libraryDependencies ++= Seq(
   "com.lihaoyi"   %% "mainargs"   % "0.7.8",

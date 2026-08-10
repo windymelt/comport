@@ -16,7 +16,10 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: sbt/setup-sbt@8feba82adc7f01ddcf8165b86f778bdb5b82cebc # v1
-      - run: sbt compile
+      # scalafmt は非コンパイルで最速に落ち、scalafix は semanticdb 付きの
+      # コンパイルを伴うため、その後の compile は追加コストがほぼない
+      - name: Lint and compile
+        run: sbt scalafmtCheckAll scalafmtSbtCheck "scalafixAll --check" compile
 
   build-linux:
     if: github.event_name == 'push' || github.event_name == 'pull_request'
