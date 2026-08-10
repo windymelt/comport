@@ -167,13 +167,14 @@ object Comport {
     }
     if show.value then System.err.println(
       s"""|--- worktree-ports ---
-            |worktree  : ${alloc.worktreePath}
-            |hash      : ${fnv1a64(alloc.worktreePath)}
-            |slot      : ${alloc.slot} / ${alloc.slotCount}
-            |base port : ${alloc.basePort}
-            |services  : ${resolvedNames.length}
-            |range     : ${alloc.basePort} - ${alloc.basePort + resolvedNames.length - 1}
-            |----------------------""".stripMargin
+          |worktree     : ${alloc.worktreePath}
+          |project root : ${projectRoot.getOrElse("(automatic)")}
+          |hash         : ${fnv1a64(alloc.worktreePath)}
+          |slot         : ${alloc.slot} / ${alloc.slotCount}
+          |base port    : ${alloc.basePort}
+          |services     : ${resolvedNames.length}
+          |range        : ${alloc.basePort} - ${alloc.basePort + resolvedNames.length - 1}
+          |----------------------""".stripMargin
     )
   }
 
