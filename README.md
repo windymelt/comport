@@ -30,6 +30,22 @@ chmod +x comport
 sudo mv comport /usr/local/bin/
 ```
 
+### Verifying a download
+
+Every release ships a `checksums.txt`, and each binary carries a
+[build provenance attestation](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds)
+tying it to the workflow run that produced it.
+
+```sh
+# Check the SHA-256 digest. Do this before renaming the file, since
+# checksums.txt records the original comport-<version>-<target> names.
+curl -sLO https://github.com/windymelt/comport/releases/latest/download/checksums.txt
+sha256sum --check --ignore-missing checksums.txt
+
+# Confirm the binary came from this repository's release workflow
+gh attestation verify comport-0.1.0-x86_64-linux --repo windymelt/comport
+```
+
 ### Build from source
 
 Requires [sbt](https://www.scala-sbt.org/) (2.x), JDK 17+, and Clang/LLVM

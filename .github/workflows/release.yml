@@ -68,6 +68,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      # attest-build-provenance signs with an OIDC token and writes the
+      # attestation to the repository.
+      id-token: write
+      attestations: write
     steps:
       - name: Extract version from tag
         id: version
@@ -86,6 +90,20 @@ jobs:
             chmod +x "$dir/comport"
             mv "$dir/comport" "release/$name"
           done
+
+      # sha256sum output format, so consumers can verify with
+      # `sha256sum --check --ignore-missing checksums.txt`.
+      - name: Generate checksums
+        run: |
+          cd release
+          sha256sum comport-* > checksums.txt
+
+      # Proves each binary was produced by this workflow run. Consumers verify
+      # with `gh attestation verify <file> --repo windymelt/comport`.
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: release/comport-*
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
