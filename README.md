@@ -79,7 +79,18 @@ eval "$(comport)"
   --range <int>          Width of the port range. Default: 50000
   --show                 Show allocation info on stderr
   --dotenv               Output in .env format without export
+  --version              Print the version and exit
 ```
+
+`--version` reports the release tag the binary was built from:
+
+```sh
+$ comport --version
+comport 0.1.0
+```
+
+Binaries built locally with `./build.sh` report `0.0.0-SNAPSHOT` unless
+`COMPORT_VERSION` is set in the environment.
 
 ### Examples
 
