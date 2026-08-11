@@ -4,6 +4,8 @@
 # LINKFLAGS (whitespace-separated) is picked up by build.sbt and appended
 # to nativeConfig.linkingOptions (used e.g. for `-static` in the Alpine
 # container build).
+# COMPORT_VERSION is picked up by build.sbt and baked into BuildInfo, which
+# `comport --version` prints.
 
 set -eux
 set pipefail

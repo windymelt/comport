@@ -174,7 +174,12 @@ object Comport {
   }
 
   def main(args: Array[String]): Unit = {
-    ParserForMethods(this).runOrExit(args.toSeq)
+    // Handled before mainargs so that --version works outside a git
+    // repository, where the normal path would exit with an error.
+    if args.contains("--version") then println(
+      s"${BuildInfo.name} ${BuildInfo.version}"
+    )
+    else ParserForMethods(this).runOrExit(args.toSeq)
     // Skip GC finalization to avoid segfault on musl (see PosixExit above)
     PosixExit.posixExit(0)
   }
