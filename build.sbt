@@ -7,7 +7,7 @@ ThisBuild / scalafmtOnCompile := true
 
 name         := "comport"
 organization := "dev.capslock"
-scalaVersion := "3.8.2"
+scalaVersion := "3.10.1"
 
 // Release builds set COMPORT_VERSION from the git tag (see release.yml).
 // Local builds report a placeholder so `--version` never claims a release.
@@ -25,7 +25,7 @@ buildInfoKeys    := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
 
 libraryDependencies ++= Seq(
   "com.lihaoyi"   %% "mainargs"   % "0.7.8",
-  "com.lihaoyi"   %% "os-lib"     % "0.11.8",
+  "com.lihaoyi"   %% "os-lib"     % "0.11.10",
   "org.virtuslab" %% "scala-yaml" % "0.3.3"
 )
 

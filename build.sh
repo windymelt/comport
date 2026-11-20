@@ -19,4 +19,4 @@ export LINKFLAGS
 # sbt 2's sbtn is glibc-linked and does not run on Alpine/musl.
 ${SBT_LAUNCH} --server -Dsbt.color=never nativeLink
 
-cp target/out/native0.5/scala-3.8.2/comport/comport ./comport
+cp target/out/native0.5/scala-3.10.1/comport/comport ./comport
